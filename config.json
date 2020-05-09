@@ -1,0 +1,16 @@
+{
+    "application": {
+        "port": "20008",
+        "secretKey": "YWRtaW46cjNAY3RpMG4=",
+        "expiresIn": "3600"
+    },
+    "mysql": {
+        "connectionLimit": 25,
+        "host": "127.0.0.1",
+        "user": "username",
+        "password": "password",
+        "database": "db_dev",
+        "port": "3306",
+        "debug": false
+    }
+}
