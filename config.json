@@ -1,8 +1,8 @@
 {
     "application": {
-        "port": "20008",
+        "port": "8001",
         "secretKey": "YWRtaW46cjNAY3RpMG4=",
-        "expiresIn": "3600"
+        "expiresIn": 36000
     },
     "mysql": {
         "connectionLimit": 25,

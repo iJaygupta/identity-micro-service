@@ -5,7 +5,6 @@ var connection = undefined;
 
 exports.mysqlConnection = function () {
     if (connection) {
-        console.log('Returning existing connection pool');
         return connection;
     }
     // Important: Ensure that sum of all the server node's pool connectionLimit size < db's max_connections

@@ -1,9 +1,13 @@
 const conn = require("../shared/mysql").mysqlConnection();
 
 
-let ReportsModel = require('../models/index');
+let Model = require('../models/index');
 
-exports.addRequest = (data) => ReportsModel.signup(conn,data);
-exports.getRequest = (data) => ReportsModel.login(conn,data);
+exports.signup = (data) => Model.signup(conn,data);
+exports.login = (data) => Model.login(conn,data);
+exports.getUser = (data) => Model.getUserDetails(conn,data);
+exports.createChatRoom = (data) => Model.createChatRoom(conn,data);
+exports.getChatRoom = (data) => Model.getChatRoom(conn,data);
+exports.getMessage = (data) => Model.getMessage(conn,data);
 
 

@@ -4,11 +4,13 @@ const config = require("../config")
 var jwt = require('jsonwebtoken');
 
 
+
 exports.signup = (conn, data) => {
     let res = {}
     return new Promise((resolve, reject) => {
         let obj = {};
         obj.email = data.email;
+        obj.name = data.name;
         obj.password = bcrypt.hashSync(data.password);
         let query = `select * from user where email ='${data.email}'`
         DBHelper.getSql(conn, query)
@@ -20,7 +22,7 @@ exports.signup = (conn, data) => {
                 } else {
                     let sqlObjInsert = DBHelper.genInsert('user', obj);
                     DBHelper.getSql(conn, sqlObjInsert.sql, sqlObjInsert.valueArr)
-                        .then((data) => {
+                        .then(() => {
                             res.status = 201;
                             res.message = 'Successfully Signed Up';
                             resolve(res);
@@ -30,7 +32,7 @@ exports.signup = (conn, data) => {
                             reject(res);
                         })
                 }
-            }).catch((error) => {
+            }).catch(() => {
                 res.status = 500;
                 res.message = 'Something went Wrong';
                 reject(res);
@@ -83,6 +85,28 @@ exports.login = (conn, data) => {
     })
 }
 
+
+exports.getUserDetails = (conn, data) => {
+    let res = {}
+    let payload = data.headers.payload;
+    return new Promise((resolve, reject) => {
+        let query = `select * from user where user_id ='${payload.user_id}'`
+        DBHelper.getSql(conn, query)
+            .then((userDetails) => {
+                res.status = 200;
+                res.data = userDetails;
+                res.message = 'Get User Details Successfully';
+                resolve(res);
+            }).catch(() => {
+                res.status = 500;
+                res.message = 'Something went Wrong';
+                reject(res);
+            })
+
+
+    })
+}
+
 function generateAuthToken(payload) {
     return new Promise((resolve, reject) => {
         jwt.sign(payload, config.application.secretKey, { expiresIn: config.application.expiresIn }, function (err, token) {
@@ -93,3 +117,70 @@ function generateAuthToken(payload) {
         });
     })
 }
+
+
+exports.createChatRoom = (conn, data) => {
+    let res = {}
+    return new Promise((resolve, reject) => {
+        let obj = {};
+        obj.chatroom_id = data.body.chatRoomId;
+        obj.user_id = data.headers.payload.user_id;
+        let sqlObjInsert = DBHelper.genInsert('chatgroup', obj);
+        DBHelper.getSql(conn, sqlObjInsert.sql, sqlObjInsert.valueArr)
+            .then(() => {
+                res.status = 201;
+                res.data = data.body.chatRoomId;
+                res.message = 'Chat Group Created Successfully';
+                resolve(res);
+            }).catch(() => {
+                res.status = 500;
+                res.message = 'Something went Wrong';
+                reject(res);
+            })
+    })
+}
+
+exports.getChatRoom = (conn, data) => {
+    let res = {}
+    return new Promise((resolve, reject) => {
+        let query = `select chatroom_id from chatgroup `
+        if (data.query.me) {
+            query += `where user_id = '${data.headers.payload.user_id}' `
+        }
+        query += `group by chatroom_id`
+        DBHelper.getSql(conn, query)
+            .then((userDetails) => {
+                res.status = 200;
+                res.data = userDetails;
+                res.message = 'Get Chat Room List Successfully';
+                resolve(res);
+            }).catch(error => {
+                res.status = 500;
+                res.message = 'Something went Wrong';
+                reject(res);
+            })
+    })
+
+}
+
+exports.getMessage = (conn, data) => {
+    let res = {}
+    return new Promise((resolve, reject) => {
+        let query = `SELECT M1.message_id, M1.content, M1.user_id, M1.chatroom_id, M2.name
+        FROM (select * from messages where chatroom_id = '${data.params.chatRoomId}') AS M1
+        JOIN (SELECT * from user) AS M2
+        ON M1.user_id = M2.user_id`
+        DBHelper.getSql(conn, query)
+            .then((userDetails) => {
+                res.status = 200;
+                res.data = userDetails;
+                res.message = 'Get Message Successfully';
+                resolve(res);
+            }).catch(error => {
+                res.status = 500;
+                res.message = 'Something went Wrong';
+                reject(res);
+            })
+    })
+}
+
