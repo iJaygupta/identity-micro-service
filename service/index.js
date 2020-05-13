@@ -9,5 +9,7 @@ exports.getUser = (data) => Model.getUserDetails(conn,data);
 exports.createChatRoom = (data) => Model.createChatRoom(conn,data);
 exports.getChatRoom = (data) => Model.getChatRoom(conn,data);
 exports.getMessage = (data) => Model.getMessage(conn,data);
+exports.addContact = (data) => Model.addContact(conn,data);
+
 
 

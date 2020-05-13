@@ -126,6 +126,28 @@ app.get('/api/v1/message/:chatRoomId', checkAuth, (req, res) => {
     });
 });
 
+app.post('/api/v1/contact', checkAuth, expressJoi.joiValidate({
+    mobile: Joi.string().required(),
+    name: Joi.string().required(),
+}), (req, res) => {
+    service.addContact(req).then(function (data) {
+        res.status(data.status).json({
+            status: data.status,
+            message: data.message,
+            data: data.data,
+        });
+    }).catch(function (error) {
+        res.status(error.status).json({
+            status: error.status,
+            message: error.message,
+            error: error.data,
+
+        });
+    });
+});
+
 http.listen(config.application.port, () => {
     console.log(`Server is up and running on port ${config.application.port}`);
 });
+
+module.exports = http;

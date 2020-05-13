@@ -2,7 +2,7 @@ const DBHelper = require('../shared/dbHelper');
 const bcrypt = require('bcryptjs')
 const config = require("../config")
 var jwt = require('jsonwebtoken');
-
+const request = require('request');
 
 
 exports.signup = (conn, data) => {
@@ -22,7 +22,7 @@ exports.signup = (conn, data) => {
                 } else {
                     let sqlObjInsert = DBHelper.genInsert('user', obj);
                     DBHelper.getSql(conn, sqlObjInsert.sql, sqlObjInsert.valueArr)
-                        .then(() => {
+                        .then((data) => {
                             res.status = 201;
                             res.message = 'Successfully Signed Up';
                             resolve(res);
@@ -184,3 +184,49 @@ exports.getMessage = (conn, data) => {
     })
 }
 
+exports.addContact = (conn, data) => {
+    let res = {}
+    let url = `${config.messageBird.baseUrl}${data.body.mobile}`
+    return new Promise((resolve, reject) => {
+        var options = {
+            method: 'GET',
+            url,
+            headers: {
+                authorization: `AccessKey ${config.messageBird.accessKey}`
+            },
+            json: true
+        }
+        request(options, (err, result, body) => {
+            if (err) {
+                res.status = 500;
+                res.message = 'Something went Wrong';
+                return reject(res);
+            } else {
+                if (body && body.errors) {
+                    res.status = 400;
+                    res.message = 'Invalid Phone Number';
+                    res.data = body.errors;
+                    return reject(res);
+                } else {
+                    let obj = {};
+                    obj.mobile = data.body.mobile;
+                    obj.name = data.body.name;
+                    obj.user_id = data.headers.payload.user_id;
+                    let sqlObjInsert = DBHelper.genInsert('contacts', obj);
+                    DBHelper.getSql(conn, sqlObjInsert.sql, sqlObjInsert.valueArr)
+                        .then(() => {
+                            res.status = 201;
+                            res.message = 'Contact Added Successfully';
+                            resolve(res);
+                        }).catch(() => {
+                            res.status = 500;
+                            res.message = 'Something went Wrong';
+                            reject(res);
+                        })
+                }
+            }
+
+        })
+
+    })
+}

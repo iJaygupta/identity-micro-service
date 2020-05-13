@@ -4,6 +4,10 @@
         "secretKey": "YWRtaW46cjNAY3RpMG4=",
         "expiresIn": 36000
     },
+    "messageBird": {
+        "baseUrl": "https://rest.messagebird.com/lookup/",
+        "accessKey": "ENyncaOoam1L09xn8Q34wVcjo"
+    },
     "mysql": {
         "connectionLimit": 25,
         "host": "127.0.0.1",
